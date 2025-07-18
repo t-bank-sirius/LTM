@@ -1,0 +1,35 @@
+version: '3.3'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ltm_qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ltm_api:
+    build: .
+    container_name: ltm_api
+    ports:
+      - "8006:8006"
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - EMBEDDING_MODEL=intfloat/multilingual-e5-large
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  qdrant_storage: 
