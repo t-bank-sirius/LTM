@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any, List
+from typing import Optional
 
 class MemoryCreate(BaseModel):
     user_id: str = Field(..., min_length=1)
@@ -18,9 +18,28 @@ class MemoryResponse(BaseModel):
     score: float
     time: str
     context: Optional[str] = None
-
 class MemoryStats(BaseModel):
     user_id: str
     total_memories: int
     collection_name: str
     vector_size: int 
+
+class FaceAddRequest(BaseModel):
+    user_id: str
+    name: str
+    image: str
+
+class FaceAddResponse(BaseModel):
+    status: str
+    message: str
+    face_id: str
+    user_id: str
+
+class FaceFindRequest(BaseModel):
+    user_id: str
+    query: str
+
+class FaceFindResponse(BaseModel):
+    status: str
+    message: str
+    image: Optional[str] = None

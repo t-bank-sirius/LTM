@@ -5,8 +5,8 @@ import uvicorn
 import os
 from dotenv import load_dotenv
 
-from .services.memory_service import MemoryService
-from .models.schemas import MemoryCreate, MemorySearch, MemoryResponse
+from .services.memory_service import MemoryService, FaceService
+from .models.schemas import MemoryCreate, MemorySearch, MemoryResponse, FaceAddRequest, FaceAddResponse, FaceFindRequest, FaceFindResponse
 
 load_dotenv()
 
@@ -24,6 +24,7 @@ app.add_middleware(
 )
 
 memory_service = MemoryService()
+face_service = FaceService()
 
 @app.on_event("startup")
 async def startup_event():
@@ -63,10 +64,50 @@ async def search_memories(search_request: MemorySearch):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка при поиске воспоминаний: {str(e)}")
 
+@app.post("/add_face", response_model=FaceAddResponse, tags=["Face"])
+async def add_face(face: FaceAddRequest):
+    try:
+        face_id = await face_service.add_face(
+            user_id=face.user_id,
+            name=face.name,
+            image=face.image
+        )
+        return FaceAddResponse(
+            status="success",
+            message="Лицо успешно добавлено",
+            face_id=face_id,
+            user_id=face.user_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка при добавлении лица: {str(e)}")
+
+@app.post("/find_face", response_model=FaceFindResponse, tags=["Face"])
+async def find_face(request: FaceFindRequest):
+    try:
+        result = await face_service.find_face(
+            user_id=request.user_id,
+            query=request.query,
+            min_score=0.7
+        )
+        if result:
+            return FaceFindResponse(
+                status="success",
+                message="Лицо найдено",
+                image=result["image"]
+            )
+        else:
+            return FaceFindResponse(
+                status="not_found",
+                message="Лицо не найдено",
+                image=None
+            )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка при поиске лица: {str(e)}")
+
 if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",
         host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", 8005)),
+        port=8006,
         reload=os.getenv("DEBUG", "false").lower() == "true"
     ) 

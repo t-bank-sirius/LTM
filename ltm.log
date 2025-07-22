@@ -1,0 +1,8 @@
+2025-07-23 01:00:01,739 - app.services.memory_service - INFO - Инициализация сервиса памяти...
+2025-07-23 01:00:01,739 - app.services.embedding_service - INFO - Загружаю модель эмбеддингов: intfloat/multilingual-e5-large
+2025-07-23 01:00:01,739 - app.services.embedding_service - INFO - Устройство: cpu
+2025-07-23 01:00:01,739 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: intfloat/multilingual-e5-large
+2025-07-23 01:00:10,062 - app.services.embedding_service - ERROR - Ошибка при загрузке модели: Failed to import transformers.models.xlm_roberta.modeling_xlm_roberta because of the following error (look up to see its traceback):
+module 'numpy' has no attribute 'dtypes'
+2025-07-23 01:00:10,063 - app.services.memory_service - ERROR - Ошибка при инициализации сервиса памяти: Failed to import transformers.models.xlm_roberta.modeling_xlm_roberta because of the following error (look up to see its traceback):
+module 'numpy' has no attribute 'dtypes'

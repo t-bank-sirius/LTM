@@ -30,6 +30,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
+    mem_limit: 4g
 
 volumes:
   qdrant_storage: 

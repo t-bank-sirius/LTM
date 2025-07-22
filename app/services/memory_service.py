@@ -1,5 +1,7 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 import logging
+from collections import Counter
+import math
 
 from .embedding_service import EmbeddingService
 from .qdrant_service import QdrantService
@@ -101,3 +103,47 @@ class MemoryService:
         except Exception as e:
             logger.error(f"Ошибка при поиске в памяти: {e}")
             raise
+
+class FaceService:
+    def __init__(self):
+        self.faces = {}
+        self.counter = 0
+
+    async def add_face(self, user_id: str, name: str, image: str):
+        self.counter += 1
+        face_id = str(self.counter)
+        if user_id not in self.faces:
+            self.faces[user_id] = []
+        self.faces[user_id].append({
+            "id": face_id,
+            "name": name,
+            "image": image
+        })
+        return face_id
+
+    @staticmethod
+    def cosine_similarity(a: str, b: str) -> float:
+        a_words = Counter(a.lower().split())
+        b_words = Counter(b.lower().split())
+        all_words = set(a_words) | set(b_words)
+        v1 = [a_words.get(w, 0) for w in all_words]
+        v2 = [b_words.get(w, 0) for w in all_words]
+        dot = sum(x*y for x, y in zip(v1, v2))
+        norm1 = math.sqrt(sum(x*x for x in v1))
+        norm2 = math.sqrt(sum(x*x for x in v2))
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        return dot / (norm1 * norm2)
+
+    async def find_face(self, user_id: str, query: str, min_score: float = 0.7):
+        faces = self.faces.get(user_id, [])
+        best = None
+        best_score = 0.0
+        for face in faces:
+            score = self.cosine_similarity(face["name"], query)
+            if score > best_score:
+                best_score = score
+                best = face
+        if best and best_score >= min_score:
+            return {"image": best["image"], "score": best_score}
+        return None

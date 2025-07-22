@@ -23,6 +23,8 @@ USER $USERNAME
 COPY --chown=$USERNAME:$USERNAME requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('intfloat/multilingual-e5-large')"
+
 COPY --chown=$USERNAME:$USERNAME app/ ./app/
 
 RUN mkdir -p /app/logs
