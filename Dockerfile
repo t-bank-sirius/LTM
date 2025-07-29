@@ -5,6 +5,7 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 ENV PYTHONUNBUFFERED=1
+ENV PATH="/home/$USERNAME/.local/bin:$PATH"
 
 RUN apt-get update && apt-get install -y \
     gcc \
@@ -29,7 +30,6 @@ COPY --chown=$USERNAME:$USERNAME app/ ./app/
 
 RUN mkdir -p /app/logs
 
-ENV PATH="/home/$USERNAME/.local/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
 ENV QDRANT_HOST=qdrant
 ENV QDRANT_PORT=6333
